@@ -679,10 +679,13 @@ async function send(ending) {
   const lv = ending === 'endA' ? 'A0' : calcLevel();
   const sourceOpt = ST.ans['source'] !== undefined ? QS[IDX['source']].opts[ST.ans['source']] : null;
   const src = sourceOpt ? (sourceOpt.other ? `autre: ${ST.ans['source_other'] || ''}` : sourceOpt.v) : '';
-  const exp = ST.ans['exp']    !== undefined ? QS[IDX['exp']].opts[ST.ans['exp']].v        : '';
+  const expOpt = ST.ans['exp'] !== undefined ? QS[IDX['exp']].opts[ST.ans['exp']] : null;
+  const exp = expOpt ? expOpt.v : '';
+  const total = (ST.scores.B||0)+(ST.scores.C||0)+(ST.scores.D||0)+(ST.scores.E||0);
   const payload = {
     timestamp : new Date().toISOString(),
     nom       : ST.ans['nom']   || '',
+    name      : ST.ans['nom']   || '',
     email     : ST.ans['email'] || '',
     source    : src,
     experience: exp,
@@ -690,8 +693,11 @@ async function send(ending) {
     score_C   : ST.scores.C ?? '',
     score_D   : ST.scores.D ?? '',
     score_E   : ST.scores.E ?? '',
-    total     : (ST.scores.B||0)+(ST.scores.C||0)+(ST.scores.D||0)+(ST.scores.E||0),
+    total     : total,
+    score     : total,
     niveau    : lv,
+    level     : lv,
+    studyDuration: expOpt ? expOpt.label : '',
     ending    : ending,
   };
   try {
