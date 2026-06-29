@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test de niveau coréen — Blabla Korean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F5F2ED;
+      --card: #FFFFFF;
+      --primary: #C8303C;
+      --primary-dk: #A32530;
+      --primary-lt: #FEF1F2;
+      --text: #1A1A2E;
+      --muted: #6B7280;
+      --border: #E4E4E7;
+      --radius: 18px;
+      --shadow: 0 6px 32px rgba(0,0,0,0.09);
+    }
+    body {
+      font-family: 'DM Sans', 'Noto Serif KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 60px;
+    }
+    /* ── Header ── */
+    .hdr {
+      width: 100%; max-width: 680px;
+      padding: 24px 24px 0;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .logo {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 17px; font-weight: 700;
+      color: var(--primary); letter-spacing: -0.3px;
+    }
+    .prog-wrap { display: flex; align-items: center; gap: 12px; }
+    .prog-bg {
+      flex: 1; height: 5px;
+      background: var(--border); border-radius: 99px; overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%; background: var(--primary);
+      border-radius: 99px; transition: width 0.5s ease; width: 0%;
+    }
+    .prog-lbl { font-size: 12px; color: var(--muted); white-space: nowrap; min-width: 36px; text-align: right; }
+    /* ── Card ── */
+    .main { width: 100%; max-width: 680px; padding: 28px 24px; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px; position: relative; overflow: hidden;
+    }
+    /* ── Track watermark ── */
+    .wm {
+      position: absolute; top: -24px; right: -8px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 140px; font-weight: 700;
+      color: var(--primary); opacity: 0.04;
+      pointer-events: none; user-select: none; line-height: 1;
+    }
+    /* ── Track badge ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--primary-lt); color: var(--primary);
+      font-size: 11px; font-weight: 700;
+      padding: 4px 11px; border-radius: 99px; margin-bottom: 20px;
+      letter-spacing: 0.6px; text-transform: uppercase;
+    }
+    /* ── Question text ── */
+    .q-label { font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
+    .q-text {
+      font-size: 21px; font-weight: 600; line-height: 1.45;
+      margin-bottom: 28px; color: var(--text);
+      font-family: 'DM Sans', 'Noto Serif KR', sans-serif;
+      white-space: pre-line;
+    }
+    /* ── Input ── */
+    .inp {
+      width: 100%; padding: 14px 18px;
+      border: 2px solid var(--border); border-radius: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 16px;
+      color: var(--text); outline: none;
+      transition: border-color 0.18s; background: #FAFAFA;
+      margin-bottom: 28px;
+    }
+    .inp:focus { border-color: var(--primary); background: #fff; }
+    /* ── Options ── */
+    .opts { display: flex; flex-direction: column; gap: 9px; margin-bottom: 28px; }
+    .opt {
+      width: 100%; text-align: left;
+      padding: 13px 16px; border: 2px solid var(--border);
+      border-radius: 11px; background: #FAFAFA;
+      font-family: 'DM Sans', 'Noto Serif KR', sans-serif;
+      font-size: 14.5px; color: var(--text); cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex; align-items: center; gap: 11px; line-height: 1.4;
+    }
+    .opt:hover { border-color: var(--primary); background: var(--primary-lt); }
+    .opt.sel { border-color: var(--primary); background: var(--primary-lt); color: var(--primary-dk); font-weight: 500; }
+    .opt-letter {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 25px; height: 25px; min-width: 25px;
+      border-radius: 50%; background: var(--border);
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .opt.sel .opt-letter { background: var(--primary); color: #fff; }
+    /* ── Nav ── */
+    .nav { display: flex; justify-content: space-between; align-items: center; }
+    .btn-back {
+      padding: 11px 18px; border: 2px solid var(--border); border-radius: 10px;
+      background: transparent; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .btn-back:hover { border-color: var(--muted); color: var(--text); }
+    .btn-next {
+      padding: 13px 28px; background: var(--primary); border: none; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+      color: #fff; cursor: pointer; transition: all 0.15s; margin-left: auto;
+    }
+    .btn-next:hover:not(:disabled) { background: var(--primary-dk); transform: translateY(-1px); }
+    .btn-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+    /* ── Intro ── */
+    .intro { text-align: center; }
+    .intro-flag { font-size: 52px; margin-bottom: 16px; }
+    .intro-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 28px; font-weight: 700; line-height: 1.35;
+      margin-bottom: 12px;
+    }
+    .intro-sub { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+    .chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 36px; }
+    .chip { padding: 6px 14px; background: var(--bg); border-radius: 99px; font-size: 13px; color: var(--muted); }
+    .btn-start {
+      display: inline-block; padding: 16px 40px;
+      background: var(--primary); color: #fff; border: none; border-radius: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-start:hover { background: var(--primary-dk); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(200,48,60,0.28); }
+    /* ── Endings ── */
+    .ending { text-align: center; }
+    .end-icon { font-size: 54px; margin-bottom: 18px; }
+    .end-title { font-family: 'Noto Serif KR', serif; font-size: 26px; font-weight: 700; line-height: 1.4; margin-bottom: 14px; }
+    .end-text { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 26px; }
+    .end-box {
+      background: var(--primary-lt); border-left: 3px solid var(--primary);
+      padding: 16px 20px; border-radius: 8px; margin-bottom: 28px;
+      text-align: left; font-size: 14.5px; line-height: 1.65;
+    }
+    .level-circle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 82px; height: 82px; background: var(--primary); color: #fff;
+      border-radius: 50%; font-family: 'Noto Serif KR', serif;
+      font-size: 26px; font-weight: 700; margin-bottom: 18px;
+    }
+    .btn-cta {
+      display: inline-block; padding: 14px 32px;
+      background: var(--primary); color: #fff; border: none; border-radius: 11px;
+      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; text-decoration: none; transition: all 0.15s;
+    }
+    .btn-cta:hover { background: var(--primary-dk); transform: translateY(-1px); }
+    .btn-cta-ghost {
+      display: inline-block; padding: 11px 28px; margin-top: 10px;
+      border: 2px solid var(--primary); color: var(--primary);
+      border-radius: 11px; font-size: 14px; font-weight: 600;
+      text-decoration: none; transition: all 0.15s;
+    }
+    .btn-cta-ghost:hover { background: var(--primary-lt); }
+    /* ── Sending ── */
+    .sending { text-align: center; padding: 48px 20px; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin 0.75s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Animation ── */
+    @keyframes slideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+    .slide-in { animation: slideIn 0.32s ease both; }
+    /* ── Footer ── */
+    .footer {
+      width: 100%; max-width: 680px;
+      padding: 0 24px 32px;
+      text-align: center;
+      font-size: 12px; color: var(--muted);
+      line-height: 1.7;
+    }
+    .footer a { color: var(--muted); text-decoration: none; }
+    .footer a:hover { color: var(--primary); }
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .card { padding: 26px 18px; }
+      .q-text { font-size: 17px; }
+      .intro-title { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hdr" id="hdr">
+  <div class="logo">Blabla Korean</div>
+  <div class="prog-wrap" id="progWrap" style="display:none">
+    <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-lbl" id="progLbl"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="card" id="card"></div>
+</div>
+
+<div class="footer">
+  © 2026 Jonghyuk Lee · <a href="https://blablakorea.com" target="_blank">blablakorea.com</a><br>
+  Tous droits réservés — Blabla Korean
+</div>
+
+<script>
+/* ================================================================
+   ⚙️  CONFIG — 여기만 수정하면 됩니다
+   ================================================================ */
+const CFG = {
+  lien_hangeul : "#",   // 예: "https://blablakorean.com/hangeul-starter"
+  lien_classes : "#",   // 예: "https://blablakorean.com/cours"
+  lien_1on1    : "#",   // 예: "https://calendly.com/blablakorean"
+  gas_url      : "https://script.google.com/macros/s/AKfycbznOkKNPBjec974UL3q4L3JrFcfOW62A41lkyUyjDz74iekHqcg9plwiPPrCd47g8RueQ/exec",   // 2단계에서 설정
+};
+/* ================================================================ */
+
+/* ================================================================
+   📋  QUESTIONS
+   ================================================================ */
+const QS = [
+  /* ── 기본 정보 ── */
+  { id:'nom',   type:'txt', kind:'text',  label:'Ton prénom',        korean:'이름이 뭐예요?',  ph:'Marie, Julien…' },
+  { id:'email', type:'txt', kind:'email', label:'Ton adresse email', korean:'이메일 부탁해요', ph:'ton@email.com'  },
+
+  { id:'source', type:'cho',
+    label:'Comment as-tu découvert ce test ou Blabla Korean ?',
+    opts:[
+      {v:'meetup',label:'Meetup'},
+      {v:'facebook',label:'Facebook'},
+      {v:'instagram',label:'Instagram'},
+      {v:'google',label:'Google'},
+      {v:'discord',label:'Discord'},
+      {v:'reddit',label:'Reddit'},
+      {v:'ami',label:'Un ami / une connaissance'},
+      {v:'autre',label:'Autre',other:true},
+    ],
+  },
+
+  { id:'exp', type:'cho',
+    label:'Tu as déjà étudié le coréen ?',
+    opts:[
+      {v:'jamais',   label:'Jamais, je pars de zéro', end:'A'},
+      {v:'hangeul',  label:"J'ai appris le hangeul mais pas de grammaire"},
+      {v:'moins1an', label:"Moins d’un an"},
+      {v:'1anplus',  label:'1 an ou plus'},
+      {v:'dramas',   label:'Je comprends beaucoup dans les dramas'},
+    ],
+  },
+
+  /* ── Track B ── */
+  { id:'B1', tr:'B', tn:1, tt:5, type:'mcq',
+    q:"Lis cette phrase : 사랑해요. Que signifie-t-elle ?",
+    opts:[{l:'Merci'},{l:'Désolé'},{l:"Je t'aime",c:1},{l:'Au revoir'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'B2', tr:'B', tn:2, tt:5, type:'mcq',
+    q:"Complète : 저___ 학생이에요.",
+    opts:[{l:'를'},{l:'는',c:1},{l:'이'},{l:'은'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'B3', tr:'B', tn:3, tt:5, type:'mcq',
+    q:"Que signifie : 뭐 먹어요 ?",
+    opts:[{l:'Tu manges quoi ?',c:1},{l:'Tu as mangé ?'},{l:'Tu as faim ?'},{l:'Tu aimes manger ?'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'B4', tr:'B', tn:4, tt:5, type:'mcq',
+    q:"Complète : 학교___ 가요.",
+    opts:[{l:'를'},{l:'이'},{l:'에',c:1},{l:'는'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'B5', tr:'B', tn:5, tt:5, type:'mcq',
+    q:"Complète : 저는 매일 커피를___.",
+    opts:[{l:'마셔요',c:1},{l:'먹어요'},{l:'봐요'},{l:'가요'},{l:'Je ne sais pas',s:1}] },
+
+  /* ── Track C ── */
+  { id:'C1', tr:'C', tn:1, tt:5, type:'mcq',
+    q:"Complète : 주말에 친구를 만나___ 해요.",
+    opts:[{l:'고 싶다'},{l:'아서'},{l:'지만'},{l:'려고',c:1},{l:'Je ne sais pas',s:1}] },
+
+  { id:'C2', tr:'C', tn:2, tt:5, type:'mcq',
+    q:"내일 뭐 할 거예요 ? — Que signifie cette phrase ?",
+    opts:[{l:"Qu'est-ce que tu as fait hier ?"},{l:"Qu'est-ce que tu vas faire demain ?",c:1},{l:"Qu'est-ce que tu fais maintenant ?"},{l:'Tu aimes faire quoi ?'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'C3', tr:'C', tn:3, tt:5, type:'mcq',
+    q:"Complète : 배가 고파___ 밥을 먹었어요.",
+    opts:[{l:'서',c:1},{l:'지만'},{l:'고'},{l:'도'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'C4', tr:'C', tn:4, tt:5, type:'mcq',
+    q:"Comment dit-on « Je ne peux pas venir demain » (impossibilité physique) ?",
+    opts:[{l:'내일 안 와요'},{l:'내일 오지 마세요'},{l:'내일 못 와요',c:1},{l:'내일 안 올 거예요'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'C5', tr:'C', tn:5, tt:5, type:'mcq',
+    q:"Complète : 이 영화는 꼭 봐___ 해요.",
+    opts:[{l:'고 싶다'},{l:'야',c:1},{l:'려고'},{l:'도'},{l:'Je ne sais pas',s:1}] },
+
+  /* ── Track D ── */
+  { id:'D1', tr:'D', tn:1, tt:5, type:'mcq',
+    q:"Complète : 음악을 들으___ 공부해요.",
+    opts:[{l:'면서',c:1},{l:'지만'},{l:'고'},{l:'더니'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'D2', tr:'D', tn:2, tt:5, type:'mcq',
+    q:"Complète : 드라마를 자주 봐___ 한국어를 많이 이해할 수 있어요.",
+    opts:[{l:'서',c:1},{l:'지만'},{l:'고'},{l:'는데'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'D3', tr:'D', tn:3, tt:5, type:'mcq',
+    q:"Que signifie : 그 사람이 거짓말을 하는 것 같아서 화가 났어요",
+    opts:[
+      {l:"Il me semblait qu'il mentait, alors je me suis mis en colère.",c:1},
+      {l:"Il mentait vraiment, donc il est parti en colère."},
+      {l:"Je lui ai demandé pourquoi il était en colère."},
+      {l:"Je ne comprends pas cette phrase."},
+    ] },
+
+  { id:'D4', tr:'D', tn:4, tt:5, type:'mcq',
+    q:"Que signifie ?\nA) 비가 오면 집에 있을 거예요.\nB) 비가 오니까 집에 있을 거예요.",
+    opts:[
+      {l:"A) Il pleut, alors je suis resté à la maison."},
+      {l:"A) Il pleut, mais je vais rester à la maison."},
+      {l:"B) Je vais rester à la maison parce qu'il pleut.",c:1},
+      {l:"B) Il pleut déjà dehors, donc je reste à la maison."},
+      {l:"Les deux phrases sont équivalentes."},
+    ] },
+
+  { id:'D5', tr:'D', tn:5, tt:5, type:'mcq',
+    q:"Complète : 그 사람이 내일 바쁘___고 했어요.",
+    opts:[{l:'다',c:1},{l:'냐'},{l:'라'},{l:'자'},{l:'Je ne sais pas',s:1}] },
+
+  /* ── Track E ── */
+  { id:'E1', tr:'E', tn:1, tt:4, type:'mcq',
+    q:"Complète : 한국에 가___ 있어요.\n(Je suis déjà allé en Corée)",
+    opts:[{l:'고 싶다'},{l:'려고'},{l:'ㄴ 적이',c:1},{l:'아서'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'E2', tr:'E', tn:2, tt:4, type:'mcq',
+    q:"Que signifie : 그렇게 안 했으면 지금쯤 후회했을 거야.",
+    opts:[
+      {l:"Si je n'avais pas fait ça, j'aurais des regrets maintenant.",c:1},
+      {l:"Je regrette d'avoir fait ça."},
+      {l:"Si je ne le fais pas, je vais regretter."},
+      {l:"Je ne l'ai pas fait et maintenant je le regrette."},
+      {l:'Je ne sais pas',s:1},
+    ] },
+
+  { id:'E3', tr:'E', tn:3, tt:4, type:'mcq',
+    q:"Quelle phrase a le sens le plus proche de 갈 뻔했어요 ?",
+    opts:[{l:'결국 갔어요.'},{l:'결국 가지 않았어요.',c:1},{l:'갔다가 바로 돌아왔어요.'},{l:'Je ne sais pas',s:1}] },
+
+  { id:'E4', tr:'E', tn:4, tt:4, type:'mcq',
+    q:"Complète : 한국어를 배울___ 더 재미있어요.\n(Plus j'apprends le coréen, plus c'est intéressant.)",
+    opts:[{l:'수록',c:1},{l:'면서'},{l:'뿐만 아니라'},{l:'더니'},{l:'Je ne sais pas',s:1}] },
+];
+
+/* ID → index 맵 */
+const IDX = {};
+QS.forEach((q,i) => IDX[q.id] = i);
+
+/* ================================================================
+   🧠  STATE
+   ================================================================ */
+const ST = {
+  screen: 'intro',
+  qId: null,
+  ans: {},        // qId → selectedIndex
+  scores: {},     // 'B'→3, 'C'→2 …
+  done: 0,
+  hist: [],       // 뒤로 가기용 히스토리 스택
+};
+
+const TOTAL = 23; /* 진행바 최대 */
+
+/* ================================================================
+   🎛️  RENDER
+   ================================================================ */
+function render() {
+  const card = document.getElementById('card');
+  const pw   = document.getElementById('progWrap');
+  card.className = 'card slide-in';
+
+  if (ST.screen === 'intro')    { pw.style.display='none';  card.innerHTML = introHTML(); }
+  else if (ST.screen === 'q')   { pw.style.display='flex';  updateProg(); card.innerHTML = qHTML(); bindQ(); }
+  else if (ST.screen === 'endA'){ pw.style.display='none';  card.innerHTML = endAHTML(); }
+  else if (ST.screen === 'endB'){ pw.style.display='none';  card.innerHTML = endBHTML(); }
+  else if (ST.screen === 'send'){ pw.style.display='none';  card.innerHTML = sendHTML(); }
+}
+
+function updateProg() {
+  const p = Math.min(100, Math.round((ST.done / TOTAL) * 100));
+  document.getElementById('progFill').style.width = p + '%';
+  document.getElementById('progLbl').textContent  = ST.done + ' / ' + TOTAL;
+}
+
+/* ── Intro ── */
+function introHTML() {
+  return `<div class="intro">
+    <div class="intro-flag">🇰🇷</div>
+    <h1 class="intro-title">Quel est vraiment<br>ton niveau de coréen ?</h1>
+    <p class="intro-sub">Réponds honnêtement — pas de bonne ou mauvaise réponse.<br>On est là pour t'aider à progresser !</p>
+    <div class="chips">
+      <span class="chip">⏱ ~10 minutes</span>
+      <span class="chip">📊 Résultats A0 → B2</span>
+      <span class="chip">📧 Parcours personnalisé par email</span>
+    </div>
+    <button class="btn-start" onclick="start()">Commencer le test →</button>
+  </div>`;
+}
+
+/* ── Question ── */
+function qHTML() {
+  const q = QS[IDX[ST.qId]];
+  let h = '';
+  const LTRS = 'ABCDEFGH';
+
+  if (q.tr) {
+    const TN = {B:'Débutant',C:'Élémentaire',D:'Intermédiaire',E:'Avancé'};
+    h += `<div class="wm">${q.tr}</div>`;
+    h += `<div class="badge">Niveau ${TN[q.tr]} · ${q.tn}/${q.tt}</div>`;
+  }
+
+  if (q.type === 'txt') {
+    h += `<p class="q-text">${q.label}<br><span style="font-size:0.65em;font-weight:400;color:var(--muted)">${q.korean}</span></p>
+    <input type="${q.kind}" class="inp" id="inp" placeholder="${q.ph}" value="${ST.ans[ST.qId]||''}"
+      autocomplete="${q.kind==='email'?'email':'given-name'}">
+    <div class="nav">
+      ${canBack()?'<button class="btn-back" onclick="back()">← Retour</button>':'<div></div>'}
+      <button class="btn-next" id="nxt" onclick="submitTxt()">Suivant →</button>
+    </div>`;
+  } else {
+    const label = q.type === 'cho' ? q.label : q.q;
+    h += `<p class="q-text">${label.replace(/\n/g,'<br>')}</p>`;
+    const selOpt = ST.ans[ST.qId] !== undefined ? q.opts[ST.ans[ST.qId]] : null;
+    h += '<div class="opts">' + q.opts.map((o,i) =>
+      `<button class="opt${ST.ans[ST.qId]===i?' sel':''}" onclick="pick('${ST.qId}',${i})" data-i="${i}">
+        <span class="opt-letter">${LTRS[i]}</span><span>${o.l || o.label}</span>
+      </button>`
+    ).join('') + '</div>';
+    if (selOpt && selOpt.other) {
+      h += `<input type="text" class="inp" id="other-inp" placeholder="Précise..." value="${ST.ans[ST.qId + '_other'] || ''}" autocomplete="off">`;
+    }
+    h += `<div class="nav">
+      ${canBack()?'<button class="btn-back" onclick="back()">← Retour</button>':'<div></div>'}
+      <button class="btn-next" id="nxt" onclick="nextFn()" ${ST.ans[ST.qId]===undefined?'disabled':''}>Suivant →</button>
+    </div>`;
+  }
+  return h;
+}
+
+/* ── Ending A ── */
+function endAHTML() {
+  return `<div class="ending">
+    <div class="end-icon">🎉</div>
+    <h2 class="end-title">Tu pars de zéro ?<br>C'est le meilleur point de départ !</h2>
+    <div class="end-box">
+      <strong>Le hangeul 한글</strong> (l'alphabet coréen) s'apprend en un jour !<br>
+      2 heures pour lire et écrire dès le début.
+    </div>
+    <a class="btn-cta" href="${CFG.lien_hangeul}">Découvrir le Hangeul Starter →</a>
+  </div>`;
+}
+
+/* ── Ending B ── */
+function endBHTML() {
+  const nom = ST.ans['nom'] || '';
+  return `<div class="ending">
+    <h2 class="end-title">잘했어요${nom ? ', ' + nom : ''} ! 🎉</h2>
+    <p class="end-text">
+      Tes résultats arrivent dans les <strong>24h</strong> avec ton niveau exact<br>
+      (de A0 à B2) et ton parcours personnalisé. 🇰🇷
+    </p>
+    <div class="end-box" style="text-align:center">
+      En attendant, découvre nos cours ici 👇
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <a class="btn-cta" href="${CFG.lien_classes}">Voir les cours →</a>
+      <a class="btn-cta-ghost" href="${CFG.lien_1on1}">💬 Cours 1:1 gratuit</a>
+    </div>
+  </div>`;
+}
+
+/* ── Sending ── */
+function sendHTML() {
+  return `<div class="sending">
+    <div class="spinner"></div>
+    <p style="color:var(--muted);font-size:15px">Envoi en cours…</p>
+  </div>`;
+}
+
+/* ================================================================
+   🎮  EVENTS & LOGIC
+   ================================================================ */
+function start() { ST.screen='q'; ST.qId='nom'; render(); }
+
+function bindQ() {
+  const otherInp = document.getElementById('other-inp');
+  if (otherInp) {
+    const nxt = document.getElementById('nxt');
+    const chkOther = () => {
+      ST.ans[ST.qId + '_other'] = otherInp.value.trim();
+      if (nxt) nxt.disabled = !otherInp.value.trim();
+    };
+    otherInp.addEventListener('input', chkOther);
+    otherInp.addEventListener('keydown', e => { if(e.key==='Enter') nextFn(); });
+    chkOther(); otherInp.focus();
+    return;
+  }
+  const inp = document.getElementById('inp');
+  if (!inp) return;
+  const nxt = document.getElementById('nxt');
+  const chk = () => { if(nxt) nxt.disabled = !inp.value.trim(); };
+  inp.addEventListener('input', chk);
+  inp.addEventListener('keydown', e => { if(e.key==='Enter') submitTxt(); });
+  chk(); inp.focus();
+}
+
+function submitTxt() {
+  const inp = document.getElementById('inp');
+  if (!inp || !inp.value.trim()) return;
+  /* 이메일 형식 검증 */
+  if (ST.qId === 'email') {
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(inp.value.trim());
+    if (!ok) {
+      inp.style.borderColor = 'var(--primary)';
+      let err = document.getElementById('inp-err');
+      if (!err) {
+        err = document.createElement('p');
+        err.id = 'inp-err';
+        err.style.cssText = 'color:var(--primary);font-size:13px;margin:-18px 0 16px;';
+        inp.insertAdjacentElement('afterend', err);
+      }
+      err.textContent = '⚠️ Adresse invalide. Ex : nom@gmail.com';
+      inp.focus(); return;
+    }
+    /* 오류 있으면 제거 */
+    const err = document.getElementById('inp-err');
+    if (err) err.remove();
+    inp.style.borderColor = '';
+  }
+  ST.ans[ST.qId] = inp.value.trim();
+  ST.done++;
+  advance(ST.qId, null);
+}
+
+function pick(qId, i) {
+  ST.ans[qId] = i;
+  const q = QS[IDX[qId]];
+  if (q.opts[i] && q.opts[i].other) {
+    render();
+    return;
+  }
+  /* UI 즉시 반영 */
+  document.querySelectorAll('.opt').forEach((b, bi) => {
+    b.classList.toggle('sel', bi === i);
+    b.querySelector('.opt-letter').style.background = bi===i ? 'var(--primary)' : '';
+    b.querySelector('.opt-letter').style.color      = bi===i ? '#fff'           : '';
+  });
+  const nxt = document.getElementById('nxt');
+  if (nxt) nxt.disabled = false;
+  /* 400ms 후 자동 다음으로 */
+  setTimeout(() => { ST.done++; advance(qId, i); }, 420);
+}
+
+function nextFn() {
+  if (ST.ans[ST.qId] !== undefined) {
+    const q = QS[IDX[ST.qId]];
+    const opt = q.opts[ST.ans[ST.qId]];
+    if (opt && opt.other) {
+      if (!((ST.ans[ST.qId + '_other'] || '').trim())) return;
+      ST.done++;
+    }
+    advance(ST.qId, ST.ans[ST.qId]);
+  }
+}
+
+function canBack() {
+  return ST.hist.length > 0;
+}
+
+function back() {
+  if (ST.hist.length === 0) return;
+  const prevId = ST.hist.pop();
+  const prevQ  = QS[IDX[prevId]];
+  /* MCQ면 해당 질문의 점수·답변 취소 */
+  if (prevQ.type === 'mcq') {
+    const prevAns = ST.ans[prevId];
+    if (prevAns !== undefined) {
+      if (prevQ.opts[prevAns] && prevQ.opts[prevAns].c)
+        ST.scores[prevQ.tr] = Math.max(0, (ST.scores[prevQ.tr]||0) - 1);
+      delete ST.ans[prevId];
+    }
+  }
+  ST.done = Math.max(0, ST.done - 1);
+  fade(() => { ST.qId = prevId; render(); });
+}
+
+/* ── 다음 질문 결정 ── */
+function advance(qId, selIdx) {
+  ST.hist.push(qId);          /* ← 히스토리에 현재 qId 저장 */
+  const q = QS[IDX[qId]];
+
+  /* 경험 분기 */
+  if (qId === 'exp' && selIdx !== null) {
+    const opt = q.opts[selIdx];
+    if (opt.end === 'A') { send('endA'); return; }
+  }
+
+  /* MCQ 채점 */
+  if (q.type === 'mcq' && selIdx !== null) {
+    if (!ST.scores[q.tr]) ST.scores[q.tr] = 0;
+    if (q.opts[selIdx].c) ST.scores[q.tr]++;
+  }
+
+  const nextId = nextQ(qId);
+  if (nextId === 'endB') { send('endB'); return; }
+  fade(() => { ST.qId = nextId; render(); });
+}
+
+function nextQ(curId) {
+  const q = QS[IDX[curId]];
+
+  /* text/choice → 배열 순서대로 */
+  if (q.type === 'txt' || q.type === 'cho') {
+    const nxt = QS[IDX[curId] + 1];
+    return nxt ? nxt.id : 'endB';
+  }
+
+  /* MCQ → 같은 트랙 내 다음 or 다음 트랙 */
+  if (q.tn < q.tt) return q.tr + (q.tn + 1);
+  return nextTrack(q.tr);
+}
+
+function nextTrack(tr) {
+  const ORDER = ['B','C','D','E'];
+  if (tr === 'E') return 'endB';
+  const ni = ORDER.indexOf(tr) + 1;
+  return ORDER[ni] + '1';
+}
+
+/* ================================================================
+   📊  레벨 계산
+   ================================================================ */
+function calcLevel() {
+  const b = ST.scores.B ?? 0;
+  const c = ST.scores.C ?? 0;
+  const d = ST.scores.D ?? 0;
+  const e = ST.scores.E ?? 0;
+  /* 점수가 처음 임계값 이하로 떨어지는 트랙이 현재 레벨 */
+  if (b <= 2) return b <= 1 ? 'A0' : 'A1';
+  if (c <= 2) return 'A1';
+  if (d <= 2) return 'A2';
+  if (e <= 2) return 'B1';
+  return 'B2';
+}
+
+/* ================================================================
+   📡  GAS 전송
+   ================================================================ */
+async function send(ending) {
+  ST.screen = 'send'; render();
+  const lv = ending === 'endA' ? 'A0' : calcLevel();
+  const sourceOpt = ST.ans['source'] !== undefined ? QS[IDX['source']].opts[ST.ans['source']] : null;
+  const src = sourceOpt ? (sourceOpt.other ? `autre: ${ST.ans['source_other'] || ''}` : sourceOpt.v) : '';
+  const exp = ST.ans['exp']    !== undefined ? QS[IDX['exp']].opts[ST.ans['exp']].v        : '';
+  const payload = {
+    timestamp : new Date().toISOString(),
+    nom       : ST.ans['nom']   || '',
+    email     : ST.ans['email'] || '',
+    source    : src,
+    experience: exp,
+    score_B   : ST.scores.B ?? '',
+    score_C   : ST.scores.C ?? '',
+    score_D   : ST.scores.D ?? '',
+    score_E   : ST.scores.E ?? '',
+    total     : (ST.scores.B||0)+(ST.scores.C||0)+(ST.scores.D||0)+(ST.scores.E||0),
+    niveau    : lv,
+    ending    : ending,
+  };
+  try {
+    if (CFG.gas_url !== 'PASTE_YOUR_GAS_URL_HERE') {
+      await fetch(CFG.gas_url, { method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    } else {
+      console.log('[DEV] GAS payload:', payload);
+      await new Promise(r => setTimeout(r, 700));
+    }
+  } catch(e) { console.error('GAS error:', e); }
+  ST.screen = ending; render();
+}
+
+/* ── 전환 애니메이션 ── */
+function fade(cb) {
+  const c = document.getElementById('card');
+  c.style.cssText = 'opacity:0;transform:translateX(-18px);transition:opacity .18s,transform .18s';
+  setTimeout(() => {
+    cb();
+    c.style.cssText = '';
+    c.className = 'card slide-in';
+  }, 185);
+}
+
+/* ── 초기화 ── */
+render();
+</script>
+</body>
+</html>
