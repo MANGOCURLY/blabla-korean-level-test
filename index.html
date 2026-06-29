@@ -12,9 +12,9 @@
     :root {
       --bg: #F5F2ED;
       --card: #FFFFFF;
-      --primary: #C8303C;
-      --primary-dk: #A32530;
-      --primary-lt: #FEF1F2;
+      --primary: #16A34A;
+      --primary-dk: #15803D;
+      --primary-lt: #ECFDF3;
       --text: #1A1A2E;
       --muted: #6B7280;
       --border: #E4E4E7;
@@ -147,7 +147,7 @@
       font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700;
       cursor: pointer; transition: all 0.15s;
     }
-    .btn-start:hover { background: var(--primary-dk); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(200,48,60,0.28); }
+    .btn-start:hover { background: var(--primary-dk); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(22,163,74,0.28); }
     /* ── Endings ── */
     .ending { text-align: center; }
     .end-icon { font-size: 54px; margin-bottom: 18px; }
@@ -386,7 +386,7 @@ const ST = {
   hist: [],       // 뒤로 가기용 히스토리 스택
 };
 
-const TOTAL = 23; /* 진행바 최대 */
+const TOTAL = QS.length; /* 진행바 최대 */
 
 /* ================================================================
    🎛️  RENDER
@@ -404,9 +404,10 @@ function render() {
 }
 
 function updateProg() {
-  const p = Math.min(100, Math.round((ST.done / TOTAL) * 100));
+  const cur = ST.qId && IDX[ST.qId] !== undefined ? IDX[ST.qId] + 1 : 0;
+  const p = Math.min(100, Math.round((cur / TOTAL) * 100));
   document.getElementById('progFill').style.width = p + '%';
-  document.getElementById('progLbl').textContent  = ST.done + ' / ' + TOTAL;
+  document.getElementById('progLbl').textContent  = cur + ' / ' + TOTAL;
 }
 
 /* ── Intro ── */
