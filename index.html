@@ -382,11 +382,45 @@ const ST = {
   qId: null,
   ans: {},        // qId → selectedIndex
   scores: {},     // 'B'→3, 'C'→2 …
+  wrong: {},        // ← 신규: 트랙별 오답 카운트
   done: 0,
   hist: [],       // 뒤로 가기용 히스토리 스택
+  finalLevel: null,  // ← 신규
+  finalDetail: null, // ← 신규
 };
 
 const TOTAL = QS.length; /* 진행바 최대 */
+
+/* ── 레벨 사다리 ── */
+const LADDER = {
+  B: { floor:'A0', target:'A1' },
+  C: { floor:'A1', target:'A2' },
+  D: { floor:'A2', target:'B1' },
+  E: { floor:'B1', target:'B2' },
+};
+
+/* ── 조기종료/완주 시 최종 레벨 산출 ── */
+function finishTest(tr, mode) {
+  const band = LADDER[tr];
+  const wrong = ST.wrong[tr] || 0;
+  const correct = ST.scores[tr] || 0;
+  let niveau, detail;
+
+  if (mode === 'stopped') {
+    if (correct >= 2)       { niveau = band.target; detail = band.floor + '++'; }
+    else if (correct === 1) { niveau = band.floor;   detail = band.floor + '+'; }
+    else                     { niveau = band.floor;   detail = band.floor; }
+  } else { // 'passed' — 끝까지 다 풀고 통과한 채로 마지막 트랙 종료
+    niveau = band.target;
+    if (wrong === 0)      detail = band.target + '+';
+    else if (wrong === 1) detail = band.target;
+    else                   detail = band.target + '-';
+  }
+
+  ST.finalLevel = niveau;
+  ST.finalDetail = detail;
+  send('endB');
+}
 
 /* ================================================================
    🎛️  RENDER
@@ -626,11 +660,22 @@ function advance(qId, selIdx) {
   /* MCQ 채점 */
   if (q.type === 'mcq' && selIdx !== null) {
     if (!ST.scores[q.tr]) ST.scores[q.tr] = 0;
-    if (q.opts[selIdx].c) ST.scores[q.tr]++;
+    if (!ST.wrong[q.tr])  ST.wrong[q.tr]  = 0;
+
+    if (q.opts[selIdx].c) {
+      ST.scores[q.tr]++;
+    } else {
+      ST.wrong[q.tr]++;
+      if (ST.wrong[q.tr] >= 3) {
+        finishTest(q.tr, 'stopped');
+        return;
+      }
+    }
   }
 
   const nextId = nextQ(qId);
-  if (nextId === 'endB') { send('endB'); return; }
+  if (nextId === 'FINISH') { finishTest(q.tr, 'passed'); return; }
+  if (nextId === 'endB')   { send('endB'); return; }
   fade(() => { ST.qId = nextId; render(); });
 }
 
@@ -650,7 +695,7 @@ function nextQ(curId) {
 
 function nextTrack(tr) {
   const ORDER = ['B','C','D','E'];
-  if (tr === 'E') return 'endB';
+  if (tr === 'E') return 'FINISH';
   const ni = ORDER.indexOf(tr) + 1;
   return ORDER[ni] + '1';
 }
@@ -676,7 +721,8 @@ function calcLevel() {
    ================================================================ */
 async function send(ending) {
   ST.screen = 'send'; render();
-  const lv = ending === 'endA' ? 'A0' : calcLevel();
+  const lv     = ending === 'endA' ? 'A0' : (ST.finalLevel  || calcLevel());
+  const detail = ending === 'endA' ? 'A0' : (ST.finalDetail || lv);
   const sourceOpt = ST.ans['source'] !== undefined ? QS[IDX['source']].opts[ST.ans['source']] : null;
   const src = sourceOpt ? (sourceOpt.other ? `autre: ${ST.ans['source_other'] || ''}` : sourceOpt.v) : '';
   const expOpt = ST.ans['exp'] !== undefined ? QS[IDX['exp']].opts[ST.ans['exp']] : null;
@@ -695,8 +741,9 @@ async function send(ending) {
     score_E   : ST.scores.E ?? '',
     total     : total,
     score     : total,
-    niveau    : lv,
-    level     : lv,
+    niveau        : lv,
+    level         : lv,
+    niveauDetail  : detail,
     studyDuration: expOpt ? expOpt.label : '',
     ending    : ending,
   };
