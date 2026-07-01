@@ -383,6 +383,7 @@ const ST = {
   ans: {},        // qId → selectedIndex
   scores: {},     // 'B'→3, 'C'→2 …
   wrong: {},        // ← 신규: 트랙별 오답 카운트
+  mcqAnsweredCount: 0,
   done: 0,
   hist: [],       // 뒤로 가기용 히스토리 스택
   finalLevel: null,  // ← 신규
@@ -661,12 +662,13 @@ function advance(qId, selIdx) {
   if (q.type === 'mcq' && selIdx !== null) {
     if (!ST.scores[q.tr]) ST.scores[q.tr] = 0;
     if (!ST.wrong[q.tr])  ST.wrong[q.tr]  = 0;
+    ST.mcqAnsweredCount++;
 
     if (q.opts[selIdx].c) {
       ST.scores[q.tr]++;
     } else {
       ST.wrong[q.tr]++;
-      if (ST.wrong[q.tr] >= 3) {
+      if (ST.mcqAnsweredCount >= 5 && ST.wrong[q.tr] >= 3) {
         finishTest(q.tr, 'stopped');
         return;
       }
