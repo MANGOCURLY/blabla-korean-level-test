@@ -668,7 +668,7 @@ function advance(qId, selIdx) {
       ST.scores[q.tr]++;
     } else {
       ST.wrong[q.tr]++;
-      if (ST.mcqAnsweredCount >= 5 && ST.wrong[q.tr] >= 3) {
+      if (ST.mcqAnsweredCount >= 6 && ST.wrong[q.tr] >= 3) {
         finishTest(q.tr, 'stopped');
         return;
       }
