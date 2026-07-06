@@ -148,6 +148,13 @@
       cursor: pointer; transition: all 0.15s;
     }
     .btn-start:hover { background: var(--primary-dk); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(22,163,74,0.28); }
+    .btn-start:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+    /* ── Buffer intro (Track B 진입 전 완충 화면) ── */
+    .buffer-check {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin: 24px 0; font-size: 14.5px; color: var(--text); cursor: pointer;
+    }
+    .buffer-check input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
     /* ── Endings ── */
     .ending { text-align: center; }
     .end-icon { font-size: 54px; margin-bottom: 18px; }
@@ -190,6 +197,16 @@
     /* ── Animation ── */
     @keyframes slideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
     .slide-in { animation: slideIn 0.32s ease both; }
+    /* ── Lang toggle ── */
+    .lang-toggle { display: flex; gap: 6px; }
+    .lang-btn {
+      padding: 5px 13px; border: 2px solid var(--border); border-radius: 99px;
+      background: transparent; font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .lang-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .lang-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
     /* ── Footer ── */
     .footer {
       width: 100%; max-width: 680px;
@@ -211,7 +228,13 @@
 <body>
 
 <div class="hdr" id="hdr">
-  <div class="logo">Blabla Korean</div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="logo">Blabla Korean</div>
+    <div class="lang-toggle" id="langToggle" style="display:none">
+      <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
   <div class="prog-wrap" id="progWrap" style="display:none">
     <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
     <div class="prog-lbl" id="progLbl"></div>
@@ -222,7 +245,7 @@
   <div class="card" id="card"></div>
 </div>
 
-<div class="footer">
+<div class="footer" id="footer">
   © 2026 Jonghyuk Lee · <a href="https://blablakorea.com" target="_blank">blablakorea.com</a><br>
   Tous droits réservés — Blabla Korean
 </div>
@@ -242,7 +265,7 @@ const CFG = {
 /* ================================================================
    📋  QUESTIONS
    ================================================================ */
-const QS = [
+const QS_FR = [
   /* ── 기본 정보 ── */
   { id:'nom',   type:'txt', kind:'text',  label:'Ton prénom',        korean:'이름이 뭐예요?',  ph:'Marie, Julien…' },
   { id:'email', type:'txt', kind:'email', label:'Ton adresse email', korean:'이메일 부탁해요', ph:'ton@email.com'  },
@@ -370,7 +393,219 @@ const QS = [
     opts:[{l:'수록',c:1},{l:'면서'},{l:'뿐만 아니라'},{l:'더니'},{l:'Je ne sais pas',s:1}] },
 ];
 
-/* ID → index 맵 */
+/* ================================================================
+   📋  QUESTIONS (English)
+   — QS_FR과 동일한 id/순서/opts 개수/c·s·end 플래그를 유지, 텍스트만 번역
+   ================================================================ */
+const QS_EN = [
+  /* ── Basic info ── */
+  { id:'nom',   type:'txt', kind:'text',  label:'Your first name',   korean:'이름이 뭐예요?',  ph:'Mary, Julian…' },
+  { id:'email', type:'txt', kind:'email', label:'Your email address', korean:'이메일 부탁해요', ph:'you@email.com'  },
+
+  { id:'source', type:'cho',
+    label:'How did you discover this test or Blabla Korean?',
+    opts:[
+      {v:'meetup',label:'Meetup'},
+      {v:'facebook',label:'Facebook'},
+      {v:'instagram',label:'Instagram'},
+      {v:'google',label:'Google'},
+      {v:'discord',label:'Discord'},
+      {v:'reddit',label:'Reddit'},
+      {v:'ami',label:'A friend / an acquaintance'},
+      {v:'autre',label:'Other',other:true},
+    ],
+  },
+
+  { id:'exp', type:'cho',
+    label:'Have you studied Korean before?',
+    opts:[
+      {v:'jamais',   label:'Never, starting from zero', end:'A'},
+      {v:'hangeul',  label:"I've learned hangeul but no grammar"},
+      {v:'moins1an', label:'Less than a year'},
+      {v:'1anplus',  label:'1 year or more'},
+      {v:'dramas',   label:'I understand a lot from dramas'},
+    ],
+  },
+
+  /* ── Track B ── */
+  { id:'B1', tr:'B', tn:1, tt:5, type:'mcq',
+    q:"Read this sentence: 사랑해요. What does it mean?",
+    opts:[{l:'Thank you'},{l:'Sorry'},{l:"I love you",c:1},{l:'Goodbye'},{l:"I don't know",s:1}] },
+
+  { id:'B2', tr:'B', tn:2, tt:5, type:'mcq',
+    q:"Complete: 저___ 학생이에요.",
+    opts:[{l:'를'},{l:'는',c:1},{l:'이'},{l:'은'},{l:"I don't know",s:1}] },
+
+  { id:'B3', tr:'B', tn:3, tt:5, type:'mcq',
+    q:"What does 뭐 먹어요 mean?",
+    opts:[{l:'What are you eating?',c:1},{l:'Did you eat?'},{l:'Are you hungry?'},{l:'Do you like eating?'},{l:"I don't know",s:1}] },
+
+  { id:'B4', tr:'B', tn:4, tt:5, type:'mcq',
+    q:"Complete: 학교___ 가요.",
+    opts:[{l:'를'},{l:'이'},{l:'에',c:1},{l:'는'},{l:"I don't know",s:1}] },
+
+  { id:'B5', tr:'B', tn:5, tt:5, type:'mcq',
+    q:"Complete: 저는 매일 커피를___.",
+    opts:[{l:'마셔요',c:1},{l:'먹어요'},{l:'봐요'},{l:'가요'},{l:"I don't know",s:1}] },
+
+  /* ── Track C ── */
+  { id:'C1', tr:'C', tn:1, tt:5, type:'mcq',
+    q:"Complete: 주말에 친구를 만나___ 해요.",
+    opts:[{l:'고 싶다'},{l:'아서'},{l:'지만'},{l:'려고',c:1},{l:"I don't know",s:1}] },
+
+  { id:'C2', tr:'C', tn:2, tt:5, type:'mcq',
+    q:"내일 뭐 할 거예요? — What does this sentence mean?",
+    opts:[{l:"What did you do yesterday?"},{l:"What are you going to do tomorrow?",c:1},{l:"What are you doing now?"},{l:'What do you like to do?'},{l:"I don't know",s:1}] },
+
+  { id:'C3', tr:'C', tn:3, tt:5, type:'mcq',
+    q:"Complete: 배가 고파___ 밥을 먹었어요.",
+    opts:[{l:'서',c:1},{l:'지만'},{l:'고'},{l:'도'},{l:"I don't know",s:1}] },
+
+  { id:'C4', tr:'C', tn:4, tt:5, type:'mcq',
+    q:"How do you say \"I can't come tomorrow\" (physical impossibility)?",
+    opts:[{l:'내일 안 와요'},{l:'내일 오지 마세요'},{l:'내일 못 와요',c:1},{l:'내일 안 올 거예요'},{l:"I don't know",s:1}] },
+
+  { id:'C5', tr:'C', tn:5, tt:5, type:'mcq',
+    q:"Complete: 이 영화는 꼭 봐___ 해요.",
+    opts:[{l:'고 싶다'},{l:'야',c:1},{l:'려고'},{l:'도'},{l:"I don't know",s:1}] },
+
+  /* ── Track D ── */
+  { id:'D1', tr:'D', tn:1, tt:5, type:'mcq',
+    q:"Complete: 음악을 들으___ 공부해요.",
+    opts:[{l:'면서',c:1},{l:'지만'},{l:'고'},{l:'더니'},{l:"I don't know",s:1}] },
+
+  { id:'D2', tr:'D', tn:2, tt:5, type:'mcq',
+    q:"Complete: 드라마를 자주 봐___ 한국어를 많이 이해할 수 있어요.",
+    opts:[{l:'서',c:1},{l:'지만'},{l:'고'},{l:'는데'},{l:"I don't know",s:1}] },
+
+  { id:'D3', tr:'D', tn:3, tt:5, type:'mcq',
+    q:"What does this mean: 그 사람이 거짓말을 하는 것 같아서 화가 났어요",
+    opts:[
+      {l:"It seemed like he was lying, so I got angry.",c:1},
+      {l:"He really was lying, so he left angry."},
+      {l:"I asked him why he was angry."},
+      {l:"I don't understand this sentence."},
+    ] },
+
+  { id:'D4', tr:'D', tn:4, tt:5, type:'mcq',
+    q:"What does this mean?\nA) 비가 오면 집에 있을 거예요.\nB) 비가 오니까 집에 있을 거예요.",
+    opts:[
+      {l:"A) It's raining, so I stayed home."},
+      {l:"A) It's raining, but I'm going to stay home."},
+      {l:"B) I'm going to stay home because it's raining.",c:1},
+      {l:"B) It's already raining outside, so I'm staying home."},
+      {l:"Both sentences mean the same thing."},
+    ] },
+
+  { id:'D5', tr:'D', tn:5, tt:5, type:'mcq',
+    q:"Complete: 그 사람이 내일 바쁘___고 했어요.",
+    opts:[{l:'다',c:1},{l:'냐'},{l:'라'},{l:'자'},{l:"I don't know",s:1}] },
+
+  /* ── Track E ── */
+  { id:'E1', tr:'E', tn:1, tt:4, type:'mcq',
+    q:"Complete: 한국에 가___ 있어요.\n(I have already been to Korea)",
+    opts:[{l:'고 싶다'},{l:'려고'},{l:'ㄴ 적이',c:1},{l:'아서'},{l:"I don't know",s:1}] },
+
+  { id:'E2', tr:'E', tn:2, tt:4, type:'mcq',
+    q:"What does this mean: 그렇게 안 했으면 지금쯤 후회했을 거야.",
+    opts:[
+      {l:"If I hadn't done that, I would regret it by now.",c:1},
+      {l:"I regret having done that."},
+      {l:"If I don't do it, I'm going to regret it."},
+      {l:"I didn't do it and now I regret it."},
+      {l:"I don't know",s:1},
+    ] },
+
+  { id:'E3', tr:'E', tn:3, tt:4, type:'mcq',
+    q:"Which sentence has the closest meaning to 갈 뻔했어요?",
+    opts:[{l:'결국 갔어요.'},{l:'결국 가지 않았어요.',c:1},{l:'갔다가 바로 돌아왔어요.'},{l:"I don't know",s:1}] },
+
+  { id:'E4', tr:'E', tn:4, tt:4, type:'mcq',
+    q:"Complete: 한국어를 배울___ 더 재미있어요.\n(The more I learn Korean, the more interesting it gets.)",
+    opts:[{l:'수록',c:1},{l:'면서'},{l:'뿐만 아니라'},{l:'더니'},{l:"I don't know",s:1}] },
+];
+
+/* ================================================================
+   🌐  UI TEXT — 언어별 고정 문구
+   ================================================================ */
+const UI = {
+  fr: {
+    title: 'Test de niveau coréen — Blabla Korean',
+    back: '← Retour',
+    next: 'Suivant →',
+    niveauLbl: 'Niveau',
+    badge: {B:'Débutant',C:'Élémentaire',D:'Intermédiaire',E:'Avancé'},
+    otherPh: 'Précise...',
+    emailErr: '⚠️ Adresse invalide. Ex : nom@gmail.com',
+    intro: {
+      title: "Quel est vraiment<br>ton niveau de coréen ?",
+      sub: "Réponds honnêtement : il n'y a pas de bonne ou de mauvaise réponse.<br>On est là pour t'aider à progresser !",
+      chip1: '⏱ ~10 minutes',
+      chip2: '📊 Résultats A0 → B2',
+      chip3: '📧 Parcours personnalisé par email',
+      btn: 'Commencer le test →',
+    },
+    buffer: {
+      msg: "Ce test évalue ton niveau de coréen, du tout début (A1) jusqu'à un niveau plus avancé (B2). Si tu débutes, il est normal que certaines questions vers la fin te paraissent un peu difficiles. Ne te décourage pas, on est là pour apprendre le coréen ensemble et prendre du plaisir 😊",
+      check: "J'ai compris",
+      btn: "J'ai compris, c'est parti !",
+    },
+    endA: {
+      title: "Tu pars de zéro ?<br>C'est le meilleur point de départ !",
+      box: "<strong>Le hangeul 한글</strong> (l'alphabet coréen) s'apprend en un jour !<br>2 heures pour lire et écrire dès le début.",
+      btn: 'Découvrir le Hangeul Starter →',
+    },
+    endB: {
+      text: "Tes résultats arrivent dans les <strong>24h</strong> avec ton niveau exact<br>(de A0 à B2) et ton parcours personnalisé. 🇰🇷",
+      box: "En attendant, découvre nos cours ici 👇",
+      btn1: 'Voir les cours →',
+      btn2: '💬 Cours 1:1 gratuit',
+    },
+    sending: 'Envoi en cours…',
+    footer: '© 2026 Jonghyuk Lee · <a href="https://blablakorea.com" target="_blank">blablakorea.com</a><br>Tous droits réservés.',
+  },
+  en: {
+    title: 'Korean Level Test — Blabla Korean',
+    back: '← Back',
+    next: 'Next →',
+    niveauLbl: 'Level',
+    badge: {B:'Beginner',C:'Elementary',D:'Intermediate',E:'Advanced'},
+    otherPh: 'Please specify...',
+    emailErr: '⚠️ Invalid address. E.g.: name@gmail.com',
+    intro: {
+      title: "What's your real<br>Korean level?",
+      sub: "Answer honestly: there's no right or wrong answer.<br>We're here to help you progress!",
+      chip1: '⏱ ~10 minutes',
+      chip2: '📊 Results A0 → B2',
+      chip3: '📧 Personalized path by email',
+      btn: 'Start the test →',
+    },
+    buffer: {
+      msg: "This test checks your Korean level, from complete beginner (A1) to a more advanced level (B2). If you're just starting out, it's totally normal for some questions near the end to feel a bit tricky. Don't worry about it, we're here to learn Korean together and have fun 😊",
+      check: "Got it",
+      btn: "Got it, let's start!",
+    },
+    endA: {
+      title: "Starting from zero?<br>That's the best place to start!",
+      box: "<strong>Hangeul 한글</strong> (the Korean alphabet) can be learned in a day!<br>2 hours to read and write from scratch.",
+      btn: 'Discover the Hangeul Starter →',
+    },
+    endB: {
+      text: "Your results arrive within <strong>24h</strong> with your exact level<br>(from A0 to B2) and your personalized path. 🇰🇷",
+      box: "In the meantime, check out our classes here 👇",
+      btn1: 'See classes →',
+      btn2: '💬 Free 1:1 class',
+    },
+    sending: 'Sending…',
+    footer: '© 2026 Jonghyuk Lee · <a href="https://blablakorea.com" target="_blank">blablakorea.com</a><br>All rights reserved.',
+  },
+};
+
+/* ── 저장된 언어 불러오기 (localStorage) ── */
+const SAVED_LANG = (localStorage.getItem('bk_lang') === 'en') ? 'en' : 'fr';
+let QS = (SAVED_LANG === 'en') ? QS_EN : QS_FR;
+
+/* ID → index 맵 (FR/EN 모두 id·순서 동일) */
 const IDX = {};
 QS.forEach((q,i) => IDX[q.id] = i);
 
@@ -379,6 +614,7 @@ QS.forEach((q,i) => IDX[q.id] = i);
    ================================================================ */
 const ST = {
   screen: 'intro',
+  lang: SAVED_LANG,
   qId: null,
   ans: {},        // qId → selectedIndex
   scores: {},     // 'B'→3, 'C'→2 …
@@ -429,9 +665,14 @@ function finishTest(tr, mode) {
 function render() {
   const card = document.getElementById('card');
   const pw   = document.getElementById('progWrap');
+  const lw   = document.getElementById('langToggle');
   card.className = 'card slide-in';
 
+  lw.style.display = (ST.screen === 'intro') ? 'flex' : 'none';
+  lw.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === ST.lang));
+
   if (ST.screen === 'intro')    { pw.style.display='none';  card.innerHTML = introHTML(); }
+  else if (ST.screen === 'buffer'){ pw.style.display='none'; card.innerHTML = bufferHTML(); }
   else if (ST.screen === 'q')   { pw.style.display='flex';  updateProg(); card.innerHTML = qHTML(); bindQ(); }
   else if (ST.screen === 'endA'){ pw.style.display='none';  card.innerHTML = endAHTML(); }
   else if (ST.screen === 'endB'){ pw.style.display='none';  card.innerHTML = endBHTML(); }
@@ -447,29 +688,43 @@ function updateProg() {
 
 /* ── Intro ── */
 function introHTML() {
+  const t = UI[ST.lang].intro;
   return `<div class="intro">
     <div class="intro-flag">🇰🇷</div>
-    <h1 class="intro-title">Quel est vraiment<br>ton niveau de coréen ?</h1>
-    <p class="intro-sub">Réponds honnêtement — pas de bonne ou mauvaise réponse.<br>On est là pour t'aider à progresser !</p>
+    <h1 class="intro-title">${t.title}</h1>
+    <p class="intro-sub">${t.sub}</p>
     <div class="chips">
-      <span class="chip">⏱ ~10 minutes</span>
-      <span class="chip">📊 Résultats A0 → B2</span>
-      <span class="chip">📧 Parcours personnalisé par email</span>
+      <span class="chip">${t.chip1}</span>
+      <span class="chip">${t.chip2}</span>
+      <span class="chip">${t.chip3}</span>
     </div>
-    <button class="btn-start" onclick="start()">Commencer le test →</button>
+    <button class="btn-start" onclick="start()">${t.btn}</button>
+  </div>`;
+}
+
+/* ── Buffer intro (Track B 진입 전 완충 화면) ── */
+function bufferHTML() {
+  const t = UI[ST.lang].buffer;
+  return `<div class="intro">
+    <p class="intro-sub">${t.msg}</p>
+    <label class="buffer-check">
+      <input type="checkbox" id="bufferChk" onchange="onBufferCheck()">
+      ${t.check}
+    </label>
+    <button class="btn-start" id="bufferBtn" onclick="startTrackB()" disabled>${t.btn}</button>
   </div>`;
 }
 
 /* ── Question ── */
 function qHTML() {
   const q = QS[IDX[ST.qId]];
+  const ui = UI[ST.lang];
   let h = '';
   const LTRS = 'ABCDEFGH';
 
   if (q.tr) {
-    const TN = {B:'Débutant',C:'Élémentaire',D:'Intermédiaire',E:'Avancé'};
     h += `<div class="wm">${q.tr}</div>`;
-    h += `<div class="badge">Niveau ${TN[q.tr]} · ${q.tn}/${q.tt}</div>`;
+    h += `<div class="badge">${ui.niveauLbl} ${ui.badge[q.tr]} · ${q.tn}/${q.tt}</div>`;
   }
 
   if (q.type === 'txt') {
@@ -477,8 +732,8 @@ function qHTML() {
     <input type="${q.kind}" class="inp" id="inp" placeholder="${q.ph}" value="${ST.ans[ST.qId]||''}"
       autocomplete="${q.kind==='email'?'email':'given-name'}">
     <div class="nav">
-      ${canBack()?'<button class="btn-back" onclick="back()">← Retour</button>':'<div></div>'}
-      <button class="btn-next" id="nxt" onclick="submitTxt()">Suivant →</button>
+      ${canBack()?`<button class="btn-back" onclick="back()">${ui.back}</button>`:'<div></div>'}
+      <button class="btn-next" id="nxt" onclick="submitTxt()">${ui.next}</button>
     </div>`;
   } else {
     const label = q.type === 'cho' ? q.label : q.q;
@@ -490,11 +745,11 @@ function qHTML() {
       </button>`
     ).join('') + '</div>';
     if (selOpt && selOpt.other) {
-      h += `<input type="text" class="inp" id="other-inp" placeholder="Précise..." value="${ST.ans[ST.qId + '_other'] || ''}" autocomplete="off">`;
+      h += `<input type="text" class="inp" id="other-inp" placeholder="${ui.otherPh}" value="${ST.ans[ST.qId + '_other'] || ''}" autocomplete="off">`;
     }
     h += `<div class="nav">
-      ${canBack()?'<button class="btn-back" onclick="back()">← Retour</button>':'<div></div>'}
-      <button class="btn-next" id="nxt" onclick="nextFn()" ${ST.ans[ST.qId]===undefined?'disabled':''}>Suivant →</button>
+      ${canBack()?`<button class="btn-back" onclick="back()">${ui.back}</button>`:'<div></div>'}
+      <button class="btn-next" id="nxt" onclick="nextFn()" ${ST.ans[ST.qId]===undefined?'disabled':''}>${ui.next}</button>
     </div>`;
   }
   return h;
@@ -502,32 +757,32 @@ function qHTML() {
 
 /* ── Ending A ── */
 function endAHTML() {
+  const t = UI[ST.lang].endA;
   return `<div class="ending">
     <div class="end-icon">🎉</div>
-    <h2 class="end-title">Tu pars de zéro ?<br>C'est le meilleur point de départ !</h2>
+    <h2 class="end-title">${t.title}</h2>
     <div class="end-box">
-      <strong>Le hangeul 한글</strong> (l'alphabet coréen) s'apprend en un jour !<br>
-      2 heures pour lire et écrire dès le début.
+      ${t.box}
     </div>
-    <a class="btn-cta" href="${CFG.lien_hangeul}">Découvrir le Hangeul Starter →</a>
+    <a class="btn-cta" href="${CFG.lien_hangeul}">${t.btn}</a>
   </div>`;
 }
 
 /* ── Ending B ── */
 function endBHTML() {
   const nom = ST.ans['nom'] || '';
+  const t = UI[ST.lang].endB;
   return `<div class="ending">
     <h2 class="end-title">잘했어요${nom ? ', ' + nom : ''} ! 🎉</h2>
     <p class="end-text">
-      Tes résultats arrivent dans les <strong>24h</strong> avec ton niveau exact<br>
-      (de A0 à B2) et ton parcours personnalisé. 🇰🇷
+      ${t.text}
     </p>
     <div class="end-box" style="text-align:center">
-      En attendant, découvre nos cours ici 👇
+      ${t.box}
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-      <a class="btn-cta" href="${CFG.lien_classes}">Voir les cours →</a>
-      <a class="btn-cta-ghost" href="${CFG.lien_1on1}">💬 Cours 1:1 gratuit</a>
+      <a class="btn-cta" href="${CFG.lien_classes}">${t.btn1}</a>
+      <a class="btn-cta-ghost" href="${CFG.lien_1on1}">${t.btn2}</a>
     </div>
   </div>`;
 }
@@ -536,7 +791,7 @@ function endBHTML() {
 function sendHTML() {
   return `<div class="sending">
     <div class="spinner"></div>
-    <p style="color:var(--muted);font-size:15px">Envoi en cours…</p>
+    <p style="color:var(--muted);font-size:15px">${UI[ST.lang].sending}</p>
   </div>`;
 }
 
@@ -544,6 +799,26 @@ function sendHTML() {
    🎮  EVENTS & LOGIC
    ================================================================ */
 function start() { ST.screen='q'; ST.qId='nom'; render(); }
+
+/* ── 완충 화면 체크박스/시작 ── */
+function onBufferCheck() {
+  document.getElementById('bufferBtn').disabled = !document.getElementById('bufferChk').checked;
+}
+function startTrackB() {
+  ST.screen = 'q'; ST.qId = 'B1'; render();
+}
+
+/* ── 언어 전환 (인트로 화면에서만 노출) ── */
+function setLang(l) {
+  if (l === ST.lang) return;
+  ST.lang = l;
+  localStorage.setItem('bk_lang', l);
+  QS = (l === 'en') ? QS_EN : QS_FR;
+  document.documentElement.lang = l;
+  document.title = UI[l].title;
+  document.getElementById('footer').innerHTML = UI[l].footer;
+  render();
+}
 
 function bindQ() {
   const otherInp = document.getElementById('other-inp');
@@ -582,7 +857,7 @@ function submitTxt() {
         err.style.cssText = 'color:var(--primary);font-size:13px;margin:-18px 0 16px;';
         inp.insertAdjacentElement('afterend', err);
       }
-      err.textContent = '⚠️ Adresse invalide. Ex : nom@gmail.com';
+      err.textContent = UI[ST.lang].emailErr;
       inp.focus(); return;
     }
     /* 오류 있으면 제거 */
@@ -640,6 +915,8 @@ function back() {
     if (prevAns !== undefined) {
       if (prevQ.opts[prevAns] && prevQ.opts[prevAns].c)
         ST.scores[prevQ.tr] = Math.max(0, (ST.scores[prevQ.tr]||0) - 1);
+      else
+        ST.wrong[prevQ.tr] = Math.max(0, (ST.wrong[prevQ.tr]||0) - 1);
       delete ST.ans[prevId];
     }
   }
@@ -656,6 +933,9 @@ function advance(qId, selIdx) {
   if (qId === 'exp' && selIdx !== null) {
     const opt = q.opts[selIdx];
     if (opt.end === 'A') { send('endA'); return; }
+    /* Track B 시작 전 완충 화면으로 */
+    fade(() => { ST.screen = 'buffer'; render(); });
+    return;
   }
 
   /* MCQ 채점 */
@@ -699,7 +979,11 @@ function nextTrack(tr) {
   const ORDER = ['B','C','D','E'];
   if (tr === 'E') return 'FINISH';
   const ni = ORDER.indexOf(tr) + 1;
-  return ORDER[ni] + '1';
+  const next = ORDER[ni];
+  console.log('Track 전환:', tr, '→', next,
+    '| wrong[' + tr + ']=' + (ST.wrong[tr] || 0) + ' (유지)',
+    '| wrong[' + next + ']=0부터 시작 (트랙별 독립 카운트)');
+  return next + '1';
 }
 
 /* ================================================================
@@ -748,6 +1032,7 @@ async function send(ending) {
     niveauDetail  : detail,
     studyDuration: expOpt ? expOpt.label : '',
     ending    : ending,
+    lang      : ST.lang,
   };
   try {
     if (CFG.gas_url !== 'PASTE_YOUR_GAS_URL_HERE') {
@@ -773,6 +1058,9 @@ function fade(cb) {
 }
 
 /* ── 초기화 ── */
+document.documentElement.lang = ST.lang;
+document.title = UI[ST.lang].title;
+document.getElementById('footer').innerHTML = UI[ST.lang].footer;
 render();
 </script>
 </body>
