@@ -918,6 +918,7 @@ function back() {
       else
         ST.wrong[prevQ.tr] = Math.max(0, (ST.wrong[prevQ.tr]||0) - 1);
       delete ST.ans[prevId];
+      ST.mcqAnsweredCount = Math.max(0, ST.mcqAnsweredCount - 1); // ★ 추가: 뒤로가기 시 진행 카운트도 되돌림
     }
   }
   ST.done = Math.max(0, ST.done - 1);
