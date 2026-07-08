@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test de niveau coréen — Blabla Korean</title>
+  <title>Test de niveau coréen — Blabla Korea</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
@@ -229,7 +229,7 @@
 
 <div class="hdr" id="hdr">
   <div style="display:flex; justify-content:space-between; align-items:center;">
-    <div class="logo">Blabla Korean</div>
+    <div class="logo">Blabla Korea</div>
     <div class="lang-toggle" id="langToggle" style="display:none">
       <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
       <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
@@ -247,7 +247,7 @@
 
 <div class="footer" id="footer">
   © 2026 Jonghyuk Lee · <a href="https://blablakorea.com" target="_blank">blablakorea.com</a><br>
-  Tous droits réservés — Blabla Korean
+  Tous droits réservés — Blabla Korea
 </div>
 
 <script>
@@ -271,7 +271,7 @@ const QS_FR = [
   { id:'email', type:'txt', kind:'email', label:'Ton adresse email', korean:'이메일 부탁해요', ph:'ton@email.com'  },
 
   { id:'source', type:'cho',
-    label:'Comment as-tu découvert ce test ou Blabla Korean ?',
+    label:'Comment as-tu découvert ce test ?',
     opts:[
       {v:'meetup',label:'Meetup'},
       {v:'facebook',label:'Facebook'},
@@ -288,10 +288,10 @@ const QS_FR = [
     label:'Tu as déjà étudié le coréen ?',
     opts:[
       {v:'jamais',   label:'Jamais, je pars de zéro', end:'A'},
-      {v:'hangeul',  label:"J'ai appris le hangeul mais pas de grammaire"},
+      {v:'hangeul',  label:"J'ai appris l'alphabet coréen (hangeul) mais je n'ai encore jamais appris de règles de grammaire"},
       {v:'moins1an', label:"Moins d’un an"},
       {v:'1anplus',  label:'1 an ou plus'},
-      {v:'dramas',   label:'Je comprends beaucoup dans les dramas'},
+      {v:'convo',    label:'Je comprends pas mal de chose dans les conversations / dramas'},
     ],
   },
 
@@ -403,7 +403,7 @@ const QS_EN = [
   { id:'email', type:'txt', kind:'email', label:'Your email address', korean:'이메일 부탁해요', ph:'you@email.com'  },
 
   { id:'source', type:'cho',
-    label:'How did you discover this test or Blabla Korean?',
+    label:'How did you discover this test?',
     opts:[
       {v:'meetup',label:'Meetup'},
       {v:'facebook',label:'Facebook'},
@@ -420,10 +420,10 @@ const QS_EN = [
     label:'Have you studied Korean before?',
     opts:[
       {v:'jamais',   label:'Never, starting from zero', end:'A'},
-      {v:'hangeul',  label:"I've learned hangeul but no grammar"},
+      {v:'hangeul',  label:"I've learned the Korean alphabet (hangeul) but haven't learned any grammar rules yet"},
       {v:'moins1an', label:'Less than a year'},
       {v:'1anplus',  label:'1 year or more'},
-      {v:'dramas',   label:'I understand a lot from dramas'},
+      {v:'convo',    label:'I understand quite a bit in conversations / dramas'},
     ],
   },
 
@@ -530,7 +530,7 @@ const QS_EN = [
    ================================================================ */
 const UI = {
   fr: {
-    title: 'Test de niveau coréen — Blabla Korean',
+    title: 'Test de niveau coréen — Blabla Korea',
     back: '← Retour',
     next: 'Suivant →',
     niveauLbl: 'Niveau',
@@ -546,17 +546,17 @@ const UI = {
       btn: 'Commencer le test →',
     },
     buffer: {
-      msg: "Ce test évalue ton niveau de coréen, du tout début (A1) jusqu'à un niveau plus avancé (B2). Si tu débutes, il est normal que certaines questions vers la fin te paraissent un peu difficiles. Ne te décourage pas, on est là pour apprendre le coréen ensemble et prendre du plaisir 😊",
+      msg: "Ce test évalue ton niveau de coréen, du tout début (A1) jusqu'à un niveau plus avancé (B2). Si tu débutes, il est normal que certaines questions te paraissent un peu difficiles. Ne te décourage pas, on est là pour apprendre le coréen ensemble et prendre du plaisir 😊",
       check: "J'ai compris",
       btn: "J'ai compris, c'est parti !",
     },
     endA: {
       title: "Tu pars de zéro ?<br>C'est le meilleur point de départ !",
-      box: "<strong>Le hangeul 한글</strong> (l'alphabet coréen) s'apprend en un jour !<br>2 heures pour lire et écrire dès le début.",
+      box: "Je te conseille de débuter avec l'alphabet coréen afin que tu puisses lire et écrire et ainsi t'améliorer beaucoup plus rapidement. Et ne t'inquiète pas, le hangeul (한글) s'apprend en un jour !",
       btn: 'Découvrir le Hangeul Starter →',
     },
     endB: {
-      text: "Tes résultats arrivent dans les <strong>24h</strong> avec ton niveau exact<br>(de A0 à B2) et ton parcours personnalisé. 🇰🇷",
+      text: "Tes résultats arriveront d'ici 24 heures avec une proposition de parcours personnalisé. 🇰🇷",
       box: "En attendant, découvre nos cours ici 👇",
       btn1: 'Voir les cours →',
       btn2: '💬 Cours 1:1 gratuit',
@@ -565,7 +565,7 @@ const UI = {
     footer: '© 2026 Jonghyuk Lee · <a href="https://blablakorea.com" target="_blank">blablakorea.com</a><br>Tous droits réservés.',
   },
   en: {
-    title: 'Korean Level Test — Blabla Korean',
+    title: 'Korean Level Test — Blabla Korea',
     back: '← Back',
     next: 'Next →',
     niveauLbl: 'Level',
@@ -581,17 +581,17 @@ const UI = {
       btn: 'Start the test →',
     },
     buffer: {
-      msg: "This test checks your Korean level, from complete beginner (A1) to a more advanced level (B2). If you're just starting out, it's totally normal for some questions near the end to feel a bit tricky. Don't worry about it, we're here to learn Korean together and have fun 😊",
+      msg: "This test checks your Korean level, from complete beginner (A1) to a more advanced level (B2). If you're just starting out, it's totally normal for some questions to feel a bit tricky. Don't worry about it, we're here to learn Korean together and have fun 😊",
       check: "Got it",
       btn: "Got it, let's start!",
     },
     endA: {
       title: "Starting from zero?<br>That's the best place to start!",
-      box: "<strong>Hangeul 한글</strong> (the Korean alphabet) can be learned in a day!<br>2 hours to read and write from scratch.",
+      box: "I'd recommend starting with the Korean alphabet so you can read and write, which will help you improve much faster. And don't worry, hangeul (한글) can be learned in a day!",
       btn: 'Discover the Hangeul Starter →',
     },
     endB: {
-      text: "Your results arrive within <strong>24h</strong> with your exact level<br>(from A0 to B2) and your personalized path. 🇰🇷",
+      text: "Your results will arrive within 24 hours along with a personalized learning path. 🇰🇷",
       box: "In the meantime, check out our classes here 👇",
       btn1: 'See classes →',
       btn2: '💬 Free 1:1 class',
