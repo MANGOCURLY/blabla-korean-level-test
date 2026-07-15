@@ -2,6 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-S189JPYPDL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-S189JPYPDL');
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Test de niveau coréen — Blabla Korea</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1033,6 +1043,20 @@ async function send(ending) {
     ending    : ending,
     lang      : ST.lang,
   };
+
+  /* ── GA4 커스텀 이벤트: 레벨테스트 완료 ── */
+  if (typeof gtag === 'function') {
+    gtag('event', 'level_test_complete', {
+      level: lv,              // 'A0' | 'A1' | 'A2' | 'B1' | 'B2'
+      level_detail: detail,   // 'B1+', 'B1-' 등 세부값
+      ending_type: ending,    // 'endA' | 'endB'
+      language: ST.lang,      // 'fr' | 'en'
+      source: src,            // meetup / instagram / google 등
+      experience: exp,        // jamais / hangeul / moins1an 등
+      total_score: total,
+    });
+  }
+
   try {
     if (CFG.gas_url !== 'PASTE_YOUR_GAS_URL_HERE') {
       await fetch(CFG.gas_url, { method:'POST', mode:'no-cors',
