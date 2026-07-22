@@ -1016,13 +1016,36 @@ function calcLevel() {
    ================================================================ */
 async function send(ending) {
   ST.screen = 'send'; render();
+
   const lv     = ending === 'endA' ? 'A0' : (ST.finalLevel  || calcLevel());
   const detail = ending === 'endA' ? 'A0' : (ST.finalDetail || lv);
+
   const sourceOpt = ST.ans['source'] !== undefined ? QS[IDX['source']].opts[ST.ans['source']] : null;
   const src = sourceOpt ? (sourceOpt.other ? `autre: ${ST.ans['source_other'] || ''}` : sourceOpt.v) : '';
+
   const expOpt = ST.ans['exp'] !== undefined ? QS[IDX['exp']].opts[ST.ans['exp']] : null;
   const exp = expOpt ? expOpt.v : '';
+
   const total = (ST.scores.B||0)+(ST.scores.C||0)+(ST.scores.D||0)+(ST.scores.E||0);
+
+  /* ── 틀린 문항 상세 수집 (개인화용) ── */
+  const wrongList = [];
+  QS.forEach(q => {
+    if (q.type === 'mcq' && ST.ans[q.id] !== undefined) {
+      const sel = q.opts[ST.ans[q.id]];
+      if (sel && !sel.c) {                        // 정답(c)이 아니면 = 틀림
+        const correctOpt = q.opts.find(o => o.c);
+        wrongList.push({
+          id       : q.id,                        // 'B2', 'C4' 등
+          question : q.q,                         // 문제 텍스트
+          picked   : sel.l,                       // 학생이 고른 답
+          correct  : correctOpt ? correctOpt.l : '',
+          unknown  : !!sel.s,                     // "모르겠어요" 선택이면 true
+        });
+      }
+    }
+  });
+
   const payload = {
     timestamp : new Date().toISOString(),
     nom       : ST.ans['nom']   || '',
@@ -1042,17 +1065,19 @@ async function send(ending) {
     studyDuration: expOpt ? expOpt.label : '',
     ending    : ending,
     lang      : ST.lang,
+    wrong_questions : JSON.stringify(wrongList.map(w => w.id)),  // ← 추가: ["B2","C4"]
+    wrong_details   : JSON.stringify(wrongList),                 // ← 추가: 선택/정답/문제까지
   };
 
   /* ── GA4 커스텀 이벤트: 레벨테스트 완료 ── */
   if (typeof gtag === 'function') {
     gtag('event', 'level_test_complete', {
-      level: lv,              // 'A0' | 'A1' | 'A2' | 'B1' | 'B2'
-      level_detail: detail,   // 'B1+', 'B1-' 등 세부값
-      ending_type: ending,    // 'endA' | 'endB'
-      language: ST.lang,      // 'fr' | 'en'
-      source: src,            // meetup / instagram / google 등
-      experience: exp,        // jamais / hangeul / moins1an 등
+      level: lv,
+      level_detail: detail,
+      ending_type: ending,
+      language: ST.lang,
+      source: src,
+      experience: exp,
       total_score: total,
     });
   }
@@ -1066,6 +1091,7 @@ async function send(ending) {
       await new Promise(r => setTimeout(r, 700));
     }
   } catch(e) { console.error('GAS error:', e); }
+
   ST.screen = ending; render();
 }
 
